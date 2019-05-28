@@ -20,6 +20,7 @@ struct Particle {
   double theta;
   double weight;
   std::vector<int> associations;
+  std::vector<double> partial_weights;
   std::vector<double> sense_x;
   std::vector<double> sense_y;
 };
@@ -63,8 +64,8 @@ class ParticleFilter {
    * @param predicted Vector of predicted landmark observations
    * @param observations Vector of landmark observations
    */
-  void dataAssociation(std::vector<LandmarkObs> predicted, 
-                       std::vector<LandmarkObs>& observations);
+//  void dataAssociation(std::vector<LandmarkObs> predicted,
+//                       std::vector<LandmarkObs>& observations);
   
   /**
    * updateWeights Updates the weights for each particle based on the likelihood
@@ -84,6 +85,24 @@ class ParticleFilter {
    *   the new set of particles.
    */
   void resample();
+
+  /**
+   * A helper function to transform given measurements to map's reference of frame..
+   */
+  static void transformer(Particle const & particle,
+		  double obs_x, double obs_y,
+		  double & x_map, double & y_map);
+
+  /*
+   * A helper function to calculate euclidean distance between given two points
+   */
+  static double euclidean_distance(double x1, double y1, double x2, double y2);
+
+  /*
+   * A helper function that calculates the multivariate distribution
+   */
+  static double multiv_prob(double sig_x, double sig_y, double x_obs, double y_obs,
+          double mu_x, double mu_y);
 
   /**
    * Set a particles list of associations, along with the associations'

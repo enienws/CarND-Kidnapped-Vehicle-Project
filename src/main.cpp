@@ -25,6 +25,8 @@ string hasData(string s) {
   return "";
 }
 
+int iteration = 0;
+
 int main() {
   uWS::Hub h;
 
@@ -39,10 +41,12 @@ int main() {
 
   // Read map data
   Map map;
-  if (!read_map_data("../data/map_data.txt", map)) {
+  if (!read_map_data("/home/engin/Documents/Projects/CarND/CarND-Kidnapped-Vehicle-Project/data/map_data.txt", map)) {
     std::cout << "Error: Could not open map file" << std::endl;
     return -1;
   }
+
+
 
   // Create particle filter
   ParticleFilter pf;
@@ -62,7 +66,9 @@ int main() {
         string event = j[0].get<string>();
         
         if (event == "telemetry") {
-          // j[1] is the data JSON object
+          if(iteration == 904)
+        	  int a = 0;;
+        	// j[1] is the data JSON object
           if (!pf.initialized()) {
             // Sense noisy position data from the simulator
             double sense_x = std::stod(j[1]["sense_x"].get<string>());
@@ -108,6 +114,7 @@ int main() {
           }
 
           // Update the weights and resample
+          std::cout << "Size: " << noisy_observations.size() << std::endl;
           pf.updateWeights(sensor_range, sigma_landmark, noisy_observations, map);
           pf.resample();
 
@@ -127,8 +134,11 @@ int main() {
             weight_sum += particles[i].weight;
           }
 
+          if(highest_weight == -1)
+        	  int a = 0;
           std::cout << "highest w " << highest_weight << std::endl;
           std::cout << "average w " << weight_sum/num_particles << std::endl;
+          std::cout << "iteration: " << iteration++ << std::endl;
 
           json msgJson;
           msgJson["best_particle_x"] = best_particle.x;
@@ -137,7 +147,9 @@ int main() {
 
           // Optional message data used for debugging particle's sensing 
           //   and associations
-          msgJson["best_particle_associations"] = pf.getAssociations(best_particle);
+          std::string associations = pf.getAssociations(best_particle);
+          std::cout << "Associations: " << associations << std::endl;
+          msgJson["best_particle_associations"] = associations;
           msgJson["best_particle_sense_x"] = pf.getSenseCoord(best_particle, "X");
           msgJson["best_particle_sense_y"] = pf.getSenseCoord(best_particle, "Y");
 
